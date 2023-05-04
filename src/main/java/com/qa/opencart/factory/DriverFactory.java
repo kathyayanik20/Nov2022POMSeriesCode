@@ -16,6 +16,8 @@ import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.io.FileHandler;
 import org.openqa.selenium.safari.SafariDriver;
 
+import com.qa.opencart.exception.FrameworkException;
+
 public class DriverFactory {
 
 	public WebDriver driver;
@@ -58,6 +60,7 @@ public class DriverFactory {
 		else
 		{
 			System.out.println("Plz pass the right browser name: "+browserName);
+			throw new FrameworkException("NO BROWSER FOUND EXCEPTION");
 		}
 		getDriver().manage().deleteAllCookies();
 		getDriver().manage().window().maximize();
@@ -81,18 +84,49 @@ public class DriverFactory {
 	public Properties initProp()
 	{
 		prop = new Properties();
-		try {
-			FileInputStream ip = new FileInputStream("./src/test/resources/config/config.properties");
+			FileInputStream ip = null;
+			String envName = System.getProperty("env");
+			System.out.println("Running test cases on Env:" +envName);
+			try {
+				if(envName == null)
+				{
+					System.out.println("no env is passed ....Running tests on QA env......");
+					ip = new FileInputStream("./src/test/resources/config/qa.config.properties");
+				}else
+				{
+					switch (envName.toLowerCase().trim()) {
+					case "qa":
+						ip = new FileInputStream("./src/test/resources/config/qa.config.properties");
+						break;
+					case "stage":
+						ip = new FileInputStream("./src/test/resources/config/stage.config.properties");
+						break;	
+					case "dev":
+						ip = new FileInputStream("./src/test/resources/config/dev.config.properties");
+						break;	
+					case "prod":
+						ip = new FileInputStream("./src/test/resources/config/config.properties");
+						break;
+					default:
+						System.out.println("...Wrong env is passed....No need to run the test cases....");
+						throw new FrameworkException("WRONG ENV IS PASSED......");
+						//break;
+					}
+				}
+			}catch(FileNotFoundException e) {
+		
+			}
+		try
+			 {
 			prop.load(ip);
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			 } catch(IOException e)
+		{
 			e.printStackTrace();
 		}
+		
 		return prop;
-	}
+			}
+	
 	
 	public static String getScreenshot()
 	{
