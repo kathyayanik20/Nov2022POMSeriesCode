@@ -4,7 +4,7 @@ public class Mail {
 	
 	public void sendMail(String[] args) {
 		
-		System.out.println(" Mail Sent");
+		System.out.println(" Mail Sent  ---Amit");
 	}
 
 }
